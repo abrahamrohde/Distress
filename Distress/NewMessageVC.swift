@@ -9,6 +9,7 @@
 import UIKit
 import Parse
 
+
 class NewMessageVC: UIViewController
 {
     @IBOutlet weak var messageTV: UITextView!
@@ -42,10 +43,11 @@ class NewMessageVC: UIViewController
         {
             message = "You must enter a message"
         }
-        
+        self.sendSMS(messageTV.text)
         if(message.characters.count == 0)
         {
             //we can create the Message
+            self.sendSMS(messageTV.text)
             let obj = PFObject(className: "Message")
             obj.setValue(nameTF.text, forKey: "name")
             obj.setValue(phoneTF.text, forKey: "phone")
@@ -54,6 +56,7 @@ class NewMessageVC: UIViewController
             obj.saveInBackgroundWithBlock({ (success: Bool, error: NSError?) -> Void in
                 if(success)
                 {
+                    
                     self.dismissViewControllerAnimated(true, completion: nil)
                 }
                 else
@@ -69,6 +72,37 @@ class NewMessageVC: UIViewController
         }
 
     }
+    
+    func sendSMS(message : String)
+    {
+        
+        let twilioSID = "SK61135d164d9d775e839b6669ccd7d00f"
+        let twilioSecret = "2bFuR2wH8VknuCRgaPCTdDRAkj7zgdBG"
+        
+        //Note replace + = %2B , for To and From phone number
+        let fromNumber = "%2B12172574737"// actual number is +14803606445
+        let toNumber = "%2B12172571781"// actual number is +919152346132
+        //let request = NSMutableURLRequest(URL: NSURL(string:"https://api.twilio.com/2010-04-01/Accounts/\(twilioSID)/Messages?To=\(toNumber)")!)
+        //let request = NSMutableURLRequest(URL: NSURL(string:"https://api.twilio.com/2010-04-01/Accounts/\(twilioSID)/Messages")!)
+        let request = NSMutableURLRequest(URL: NSURL(string:"https://api.twilio.com/2010-04-01/Accounts/\(twilioSID):\(twilioSecret)/Messages")!)
+        // Build the request
+        //let request = NSMutableURLRequest(URL: NSURL(string:"https://\(twilioSID):\(twilioSecret)@api.twilio.com/2010-04-01/Accounts/\(twilioSID)/Messages")!)
+        request.HTTPMethod = "POST"
+        request.HTTPBody = "From=\(fromNumber)&To=\(toNumber)&Body=\(message)".dataUsingEncoding(NSUTF8StringEncoding)
+        
+        // Build the completion block and send the request
+        NSURLSession.sharedSession().dataTaskWithRequest(request, completionHandler: { (data, response, error) in
+            print("Finished")
+            if let data = data, responseDetails = NSString(data: data, encoding: NSUTF8StringEncoding) {
+                // Success
+                print("Response: \(responseDetails)")
+            } else {
+                // Failure
+                print("Error: \(error)")
+            }
+        }).resume()
+    }
+    
     
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
