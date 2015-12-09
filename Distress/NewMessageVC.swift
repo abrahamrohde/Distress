@@ -48,7 +48,7 @@ class NewMessageVC: UIViewController
         {
             //we can create the Message
             self.sendSMS(messageTV.text)
-            let obj = PFObject(className: "Message")
+            let obj = PFObject(className: "Message")    
             obj.setValue(nameTF.text, forKey: "name")
             obj.setValue(phoneTF.text, forKey: "phone")
             obj.setValue(messageTV.text, forKey: "message_text")
